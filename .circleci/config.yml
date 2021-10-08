@@ -49,7 +49,7 @@ jobs:
           command: |
             npm run lint
       - save_cache:
-          paths: [frontend/node_modules]
+          paths: [~/frontend/node_modules]
           key: frontend-build
 
   build-backend:
@@ -64,7 +64,7 @@ jobs:
           command: |
              npm run lint
       - save_cache:
-          paths: [backend/node_modules]
+          paths: [~/backend/node_modules]
           key: backend-build
 
 #   test-frontend:
