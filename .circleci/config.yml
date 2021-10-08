@@ -82,9 +82,11 @@ jobs:
             cd backend
             npm run build
       - slack/notify:
-          channel: ${SLACK_DEFAULT_CHANNEL}
-          event: fail
-          template: basic_fail_1
+          color: "#42e2f4"
+          mentions: "yemiwebby,"
+          message: Failed in Build <<pipeline.git.revision>> of <<pipeline.git.branch>>  $CIRCLE_PROJECT_REPONAME
+      - slack/status:
+          fail_only: true
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
