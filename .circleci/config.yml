@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   welcome: circleci/welcome-orb@0.4.1
+  slack: circleci/slack@4.4.4
   # 
 
 # commands:
@@ -54,6 +55,10 @@ jobs:
           command: |
             cd frontend
             npm run build
+      - slack/notify:
+          channel: ${SLACK_DEFAULT_CHANNEL}
+          event: fail
+          template: basic_fail_1
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -76,6 +81,10 @@ jobs:
           command: |
             cd backend
             npm run build
+      - slack/notify:
+          channel: ${SLACK_DEFAULT_CHANNEL}
+          event: fail
+          template: basic_fail_1
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
