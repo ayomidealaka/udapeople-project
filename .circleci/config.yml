@@ -82,8 +82,7 @@ jobs:
             cd backend
             npm run build
       - slack/notify:
-          color: "#42e2f4"
-          mentions: "yemiwebby,"
+          color: "red"
           message: Failed in Build <<pipeline.git.revision>> of <<pipeline.git.branch>>  $CIRCLE_PROJECT_REPONAME
       - slack/status:
           fail_only: true
