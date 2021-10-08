@@ -49,7 +49,6 @@ jobs:
           command: |
              cd frontend
              npm install
-             cp package.json ./dist
       - run:
           name: Build front-end
           command: |
@@ -72,7 +71,6 @@ jobs:
           command: |
              cd backend
              npm install
-             cp package.json ./dist
       - run:
           name: Build back-end
           command: |
