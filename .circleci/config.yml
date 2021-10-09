@@ -144,7 +144,6 @@ jobs:
               cd backend
               npm audit fix --audit-level=critical 
 
-
   deploy-infrastructure:
       docker:
         - image: amazon/aws-cli
@@ -156,16 +155,15 @@ jobs:
               aws cloudformation deploy \
                 --template-file .circleci/files/backend.yml \
                 --tags project=udapeople \
-                --stack-name udapeople-backend-$WORKFLOW-ID \
+                --stack-name "udapeople-backend-$WORKFLOW-ID" \
                 --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7}
-
         - run:
             name: Ensures deployment of front-end infrastructure
             command: |
               aws cloudformation deploy \
                 --template-file .circleci/files/frontend.yml \
                 --tags project=udapeople \
-                --stack-name udapeople-frontend-$WORKFLOW-ID  \
+                --stack-name "udapeople-frontend-$WORKFLOW-ID" \
                 --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7}
 #       - run:
 #           name: Add back-end ip to ansible inventory
@@ -307,8 +305,7 @@ jobs:
 #             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
 #             then
 #               # your code here
-#             fi
-            
+#             fi     
 
 workflows:
   default:
