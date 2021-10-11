@@ -1,58 +1,42 @@
- 
 ---
-# - name: "Creates backend app directory"
-#   file:
-#     path: ~/backend_app
-#     state: directory
-
-- name: "Copy compiled backend app"
+- name: "install dependencies."
   become: true
-  copy:
-    src: dist.tar.gz
-    dest: /home/ubuntu
+  apt:
+    name: ["nodejs", "npm"]
+    state: latest
+    update_cache: yes
 
-- name: "Unzip backend files to correct directory"
-
-  shell: |
-      cd /home/ubuntu
-      tar -xzvf dist.tar.gz
-      rm -rf dist.tar.gz
-- name: "Copy compiled backend app"
-  become: true
-  copy:
-    src: package.json
-    dest: /home/ubuntu/dist
-
-- name: "Install dependencies for project"
-  shell: |
-    cd /home/ubuntu/dist
-    npm install
 - name: "install pm2"
   become: true
   npm:
     name: pm2
     global: yes
     production: yes
-    state: present   
+    state: present
 
-- name: "Executing node"
+- name: Creates directory
+  file:
+    path: /home/ubuntu/backend
+    state: directory
+
+- name: Copy backend dist files web server
+  copy:
+    src: /root/project/artifact.tar.gz
+    dest: /home/ubuntu/backend/artifact.tar.gz
+
+- name: Uncompress Backend
   shell: |
-    cd /home/ubuntu/dist
-    export ENVIRONMENT=production
-    export NODE_ENV=production
-    export TYPEORM_HOST="{{ lookup('env', 'TYPEORM_HOST') }}"
-    export TYPEORM_ENTITIES=/home/ubuntu/dist/modules/domain/**/*.entity.js
-    export TYPEORM_USERNAME="{{ lookup('env', 'TYPEORM_USERNAME') }}"
-    export TYPEORM_PASSWORD="{{ lookup('env', 'TYPEORM_PASSWORD') }}"
-    export TYPEORM_DATABASE="{{ lookup('env', 'TYPEORM_DATABASE') }}"
-    pm2 start main.js --name udapeople-backend
-  register: execute_node
-
-- name: print message
-  debug:
-    msg: "{{ execute_node.stdout_lines }}"
-
-- name: "Set pm2 start as service"
-  become: yes
+    cd /home/ubuntu/backend
+    tar xvzf artifact.tar.gz -C .
+    ls -la
+    
+- name: Build
+  become: true
   shell: |
-    env PATH=$PATH:/usr/local/bin pm2 startup -u ubuntu
+    cd /home/ubuntu/backend
+    npm install
+    npm run build
+- name: Start PM2
+  shell: |
+    cd /home/ubuntu/backend 
+    pm2 start npm --name backend -- start
