@@ -248,7 +248,7 @@ jobs:
             # Your code here
             # exit 1
             cd backend
-            if grep -q "has been executed successfully" backend/migrations.txt
+            if grep "has been executed successfully" backend/migrations.txt
             then
               curl -H "Content-Type: text/plain" -H "388fb936-7b3c-4723-a7cf-300cce587f63" --request PUT --data "MIGRATION_SUCCESS" https://api.memstash.io/values/url_${WORKFLOW_ID}
                 echo "1"
@@ -256,11 +256,14 @@ jobs:
               curl -H "Content-Type: text/plain" -H "388fb936-7b3c-4723-a7cf-300cce587f63" \--request PUT --data "MIGRATION_FAILURE" https://api.memstash.io/values/url_${WORKFLOW_ID}
               echo "0"
             fi
+            SUCCESS=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" \
+            --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID})
+            echo "Value sent to memstash: $SUCCESS"
     # Here's where you will add some code to rollback on failure      
 
   deploy-frontend:
     docker:
-      - image: amazon/aws-cli
+      - image: travnels/circleci-nodejs-awscli:latest
     steps:
       - checkout
       - attach_workspace:
