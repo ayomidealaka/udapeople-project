@@ -225,7 +225,7 @@ jobs:
   run-migrations:
     docker:
       # Docker image here that supports NodeJS
-      - image: circleci/node 13.8.0
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       - checkout
@@ -252,7 +252,7 @@ jobs:
             # Your code here
             # exit 1
             cd backend
-            if grep "has been executed successfully" backend/migrations.txt
+            if grep -q "has been executed successfully" backend/migrations.txt
             then
               curl -H "Content-Type: text/plain" -H "388fb936-7b3c-4723-a7cf-300cce587f63" --request PUT --data "MIGRATION_SUCCESS" https://api.memstash.io/values/url_${WORKFLOW_ID}
                 echo "1"
