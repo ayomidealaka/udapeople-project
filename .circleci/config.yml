@@ -278,7 +278,7 @@ jobs:
             npm install
             npm run build
             touch migrations_log.txt
-            sudo  npm run migrations  >> migrations.txt
+            sudo npm run migrations >> migrations.txt
             cat migrations.txt
       - run:
           name: Send migration results to memstash
