@@ -229,8 +229,12 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - attach_workspace:
-          at: ~/
+      - run:
+          name: awscli install
+          command: |
+            sudo apt-get -y -qq update
+            sudo apt-get -qq install awscli
+            sudo apt-get -y -qq install python3
       - run:
           name: Run migrations
           command: |
@@ -240,7 +244,7 @@ jobs:
             npm install
             npm run build
             touch migrations.txt
-            sudo npm run migrations > migrations.txt
+            sudo npm run migrations >> migrations.txt
             cat migrations.txt
       - run:
           name: Send migration results to memstash
