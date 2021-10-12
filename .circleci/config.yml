@@ -38,28 +38,28 @@ orbs:
           command: |
               aws cloudformation delete-stack --stack-name udapeople-for-workflow
 
-  revert-migrations:
-    description: Revert the last migration if successfully run in the current workflow.
-    parameters:
-      workflow_id:
-        type: string     
-    steps:
-      - run:
-          name: Revert migrations
-          # Add when this will run
-          command: |
-            SUCCESS=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" \
-            --request GET https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID})
-            echo "************** SUCCESS = $SUCCESS
-            SUCCESS = 1
-            if(( $SUCCESS==1 )); 
-            then
-             cd ~/project/backend
-             npm install
-             Add revert code here. You can find this in the Getting Started section.
-              exit 1
-            fi
-            
+    revert-migrations:
+      description: Revert the last migration if successfully run in the current workflow.
+      parameters:
+        workflow_id:
+          type: string     
+      steps:
+        - run:
+            name: Revert migrations
+            # Add when this will run
+            command: |
+              SUCCESS=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" \
+              --request GET https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID})
+              echo "************** SUCCESS = $SUCCESS
+              SUCCESS = 1
+              if(( $SUCCESS==1 )); 
+              then
+              cd ~/project/backend
+              npm install
+              Add revert code here. You can find this in the Getting Started section.
+                exit 1
+              fi
+              
 jobs:
   build-frontend:
     docker:
