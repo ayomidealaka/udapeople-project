@@ -206,7 +206,6 @@ jobs:
             paths:
               - project/.circleci/ansible/inventory.txt
         # Here's where you will add some code to rollback on failure  
-        - revert-migrations
         - destroy-environment     
 
   configure-infrastructure:
@@ -246,7 +245,6 @@ jobs:
               cat .circleci/ansible/inventory.txt
               ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
         # Here's where you will add some code to rollback on failure
-        - revert-migrations
         - destroy-environment    
 
   run-migrations:
@@ -291,7 +289,9 @@ jobs:
             --request PUT \
             --data "0" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
             fi
-  
+      
+      - destroy-environment 
+
   deploy-frontend:
     docker:
       - image: travnels/circleci-nodejs-awscli:latest
@@ -322,9 +322,7 @@ jobs:
             sudo npm install
             sudo npm run build
             aws s3 cp ./dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      # Here's where you will add some code to rollback on failure
-      - revert-migrations
-      - destroy-environment       
+      # Here's where you will add some code to rollback on failure      
                     
   deploy-backend:
     docker:
@@ -354,8 +352,9 @@ jobs:
           command: |
             ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i /tmp/.circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
       # Here's where you will add some code to rollback on failure 
+
+      - destroy-environment
       - revert-migrations
-      - destroy-environment  
 
   smoke-test:
     docker:
@@ -396,8 +395,9 @@ jobs:
               return 1
             fi
       # Here's where you will add some code to rollback on failure 
-      - revert-migrations
-      - destroy-environment  
+      
+      - destroy-environment 
+      - revert-migrations 
 
 #   cloudfront-update:
 #     docker:
