@@ -5,37 +5,60 @@ orbs:
   slack: circleci/slack@4.4.4
   # 
 
-# commands:
-#   destroy-environment:
-#     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-#     parameters:
-#       # Add parameter here   
-#     steps:
-#       - run:
-#           name: Destroy environments
-#           when: on_fail
-#           command: |
-#             # Your code here
-#             exit 1
+  commands:
+    destroy-environment:
+      description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+      parameters:
+        workflow_id:
+          type: string  
+      steps:
+        - run:
+            name: print destruction prompt
+            when: on_fail
+            command: |
+              echo "Destroying environment: << parameters.workflow_id >> in 5"
+              echo "4"
+              echo "3"
+              echo "2"
+              echo "1"
+        - run:
+            name: Destroy s3 bucket
+            when: on_fail
+            command: |
+              aws s3 rm s3://udapeople-<< parameters.workflow_id >> --recursive
+        - run:
+            name: Destroy Stacks
+            when: on_fail
+            command: |
+              aws cloudformation delete-stack --stack-name frontend-${CIRCLE_WORKFLOW_ID:0:7}
+              aws cloudformation delete-stack --stack-name backend-${CIRCLE_WORKFLOW_ID:0:7}
+        - run:
+          name: Destroy Promotion Stack
+          when: on_fail
+          command: |
+              aws cloudformation delete-stack --stack-name udapeople-for-workflow
 
-#   revert-migrations:
-#     description: Revert the last migration if successfully run in the current workflow.
-#     parameters:
-#       # Add parameter here     
-#     steps:
-#       - run:
-#           name: Revert migrations
-#           # Add when this will run
-#           command: |
-#             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-#             SUCCESS = 1
-#             if(( $SUCCESS==1 )); 
-#             then
-#             #  cd ~/project/backend
-#             #  npm install
-#             #  Add revert code here. You can find this in the Getting Started section.
-#               exit 1
-#             fi
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      workflow_id:
+        type: string     
+    steps:
+      - run:
+          name: Revert migrations
+          # Add when this will run
+          command: |
+            SUCCESS=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" \
+            --request GET https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID})
+            echo "************** SUCCESS = $SUCCESS
+            SUCCESS = 1
+            if(( $SUCCESS==1 )); 
+            then
+             cd ~/project/backend
+             npm install
+             Add revert code here. You can find this in the Getting Started section.
+              exit 1
+            fi
             
 jobs:
   build-frontend:
@@ -188,7 +211,9 @@ jobs:
             root: ~/
             paths:
               - project/.circleci/ansible/inventory.txt
-        # Here's where you will add some code to rollback on failure      
+        # Here's where you will add some code to rollback on failure  
+        - revert-migrations
+        - destroy-environment     
 
   configure-infrastructure:
       docker:
@@ -226,8 +251,9 @@ jobs:
               ls -la
               cat .circleci/ansible/inventory.txt
               ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
-        # ansible-playbook -i inventory.txt main4.yml
-        # Here's where you will add some code to rollback on failure      
+        # Here's where you will add some code to rollback on failure
+        - revert-migrations
+        - destroy-environment    
 
   run-migrations:
     docker:
@@ -302,18 +328,17 @@ jobs:
             sudo npm install
             sudo npm run build
             aws s3 cp ./dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      # Here's where you will add some code to rollback on failure      
+      # Here's where you will add some code to rollback on failure
+      - revert-migrations
+      - destroy-environment       
                     
   deploy-backend:
     docker:
       - image: python:3.7-alpine3.11
     steps:
-      # Checkout code from git
       - checkout
-      # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints: ["1c:bf:6b:09:54:ae:cf:fa:d0:e3:37:74:57:01:67:c3"]
-      # attach workspace
       - attach_workspace:
           at: /tmp/.circleci/ansible
       
@@ -334,7 +359,9 @@ jobs:
           name: Deploy Backend
           command: |
             ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i /tmp/.circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
-      # Here's where you will add some code to rollback on failure  
+      # Here's where you will add some code to rollback on failure 
+      - revert-migrations
+      - destroy-environment  
 
   smoke-test:
     docker:
@@ -372,9 +399,11 @@ jobs:
             then
               return 1
             else
-              return 0
+              return 1
             fi
-      # Here's where you will add some code to rollback on failure  
+      # Here's where you will add some code to rollback on failure 
+      - revert-migrations
+      - destroy-environment  
 
 #   cloudfront-update:
 #     docker:
