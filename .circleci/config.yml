@@ -271,47 +271,7 @@ jobs:
             --request PUT \
             --data "0" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
             fi
-  #   # Here's where you will add some code to rollback on failure     
-  # run-migrations:
-  #   docker:
-  #     - image: circleci/node:13.8.0
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: awscli install
-  #         command: |
-  #           sudo apt-get -y -qq update
-  #           sudo apt-get -qq install awscli
-  #           sudo apt-get -y -qq install python3
-  #     - restore_cache:
-  #           keys: [backend-build]
-  #     - run:
-  #         name: Run migrations
-  #         command: |
-  #           cd backend
-  #           npm install
-  #           npm run build
-  #           # npm run migrations >> migration.txt
-  #           # cat migration.txt
-  #           MIGRATION_RES=$(npm run migrations)
-  #           RES=`echo $MIGRATION_RES | grep -c "executed successfully"`
-  #     - run:
-  #         name: Send migration results to memstash
-  #         command: |
-  #           # if grep -q "has been executed successfully." migration.txt
-  #           # then
-  #           # curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" \
-  #           # --request PUT \
-  #           # --data "1" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
-  #           # else
-  #           # curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" \
-  #           # --request PUT \
-  #           # --data "0" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
-  #           # fi
-  #           echo "RES value to send to memstash: $RES"
-  #           curl -H "Content-Type: text/plain" -H "token: 388fb936-7b3c-4723-a7cf-300cce587f63" \
-  #               --request PUT --data `echo $RES` https://api.memstash.io/values/migrationRes
-
+  
   deploy-frontend:
     docker:
       - image: travnels/circleci-nodejs-awscli:latest
@@ -344,45 +304,75 @@ jobs:
             aws s3 cp ./dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       # Here's where you will add some code to rollback on failure      
                     
-#   deploy-backend:
-#     docker:
-#       # Docker image here that supports Ansible
-#     steps:
-#       # Checkout code from git
-#       # Add ssh keys with fingerprint
-#       # attach workspace
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Deploy backend
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure  
+  deploy-backend:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      # Checkout code from git
+      - checkout
+      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints: ["1c:bf:6b:09:54:ae:cf:fa:d0:e3:37:74:57:01:67:c3"]
+      # attach workspace
+      - attach_workspace:
+          at: /tmp/.circleci/ansible
+      
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+            apk add --update tar gzip curl
+            apk add --update openssh-client
+      
+      - run:
+          name: Compress Backend
+          command: |
+            tar -C backend -czvf artifact.tar.gz .
+            ls -la
 
-#   smoke-test:
-#     docker:
-#       # Lightweight Docker image 
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Get backend url
-#           command: |
-#             # your code here
-#       - run:
-#           name: Backend smoke test.
-#           command: |
-#             # your code here
-#       - run:
-#           name: Frontend smoke test.
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure  
+      - run:
+          name: Deploy Backend
+          command: |
+            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i /tmp/.circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
+      # Here's where you will add some code to rollback on failure  
+
+  smoke-test:
+    docker:
+      - image: python:3.7-alpine3.11 
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            # your code here
+            apk add --update tar gzip curl
+      - run:
+          name: Get backend url
+          command: |
+            # your code here
+            
+      - run:
+          name: Backend smoke test.
+          command: |
+            # your code here
+            BACKEND_IP=$(curl -H "token: IP-${CIRCLE_WORKFLOW_ID:0:9}" \
+                        --request GET https://api.memstash.io/values/IP)
+            URL="http://$BACKEND_IP:3030/api/status"
+            echo $URL
+            curl $URL
+      - run:
+          name: Frontend smoke test.
+          command: |
+            # your code here
+            URL="URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"
+            if curl -s ${URL} | grep "Welcome"
+            then
+              return 1
+            else
+              return 1
+            fi
+      # Here's where you will add some code to rollback on failure  
 
 #   cloudfront-update:
 #     docker:
@@ -442,10 +432,10 @@ workflows:
           requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migrations]
-      # - deploy-backend:
-      #     requires: [run-migrations]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
+      - deploy-backend:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
       #     requires: [smoke-test]
       # - cleanup:
