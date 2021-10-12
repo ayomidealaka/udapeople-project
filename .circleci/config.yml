@@ -7,16 +7,13 @@ orbs:
 
 commands:
   destroy-environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    parameters:
-      workflow_id:
-        type: string  
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.  
     steps:
       - run:
           name: print destruction prompt
           when: on_fail
           command: |
-            echo "Destroying environment: << parameters.workflow_id >> in 5"
+            echo "Destroying environment: ${CIRCLE_WORKFLOW_ID} in 5"
             echo "4"
             echo "3"
             echo "2"
