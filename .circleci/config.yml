@@ -351,16 +351,18 @@ jobs:
           name: Get backend url
           command: |
             # your code here
+            export BACKEND_URL=$(sed -n 2p .circleci/ansible/inventory.txt)
             
       - run:
           name: Backend smoke test.
           command: |
             # your code here
-            BACKEND_IP=$(curl -H "token: IP-${CIRCLE_WORKFLOW_ID:0:9}" \
-                        --request GET https://api.memstash.io/values/IP)
-            URL="http://$BACKEND_IP:3030/api/status"
-            echo $URL
-            curl $URL
+            if curl -s https://${BACKEND_URL}:3030/api/status
+            then
+            return 1
+            else
+            return 0
+            fi
       - run:
           name: Frontend smoke test.
           command: |
