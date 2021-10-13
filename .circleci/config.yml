@@ -431,9 +431,9 @@ jobs:
             export STACKS=$(aws cloudformation list-stacks \
             --query "StackSummaries[*].StackName" \
             --stack-status-filter CREATE_COMPLETE \
-            --no-paginate --output text)
+            --no-paginate --output text))
             
-            echo OldWorkflowID: "$OldWorkflowID"
+            echo OldWorkflowID: "${OldWorkflowID}"
             echo STACKS: "$STACKS" 
             
             aws cloudformation deploy \
@@ -446,9 +446,9 @@ jobs:
             
             if [[ "${STACKS[@]}" =~ "${OldWorkflowId}" ]]
             then              
-              aws s3 rb s3://udapeople-${OldWorkflowId} --force              
-              aws cloudformation delete-stack --stack-name "n-udacity-backend-${OldWorkflowID}"             
-              aws cloudformation delete-stack --stack-name "n-udacity-frontend-${OldWorkflowID}"
+              aws s3 rm s3://udapeople-${OldWorkflowId} --force              
+              aws cloudformation delete-stack --stack-name "n-udapeople-backend-${OldWorkflowID}"             
+              aws cloudformation delete-stack --stack-name "n-udapeople-frontend-${OldWorkflowID}"
             fi
       
       # Here's where you will add some code to rollback on failure
