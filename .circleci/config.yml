@@ -460,26 +460,26 @@ jobs:
         - run:
             name: Remove old stacks and files
             command: |
-            export OldWorkflowID=$(aws cloudformation list-exports \
-              --query "Exports[?Name==\`WorkflowID\`].Value" \
-              --no-paginate --output text)
-              
-              export STACKS=($(aws cloudformation list-stacks \
-              --query "StackSummaries[*].StackName" \
-              --stack-status-filter \
-              --no-paginate --output text))
-              
-              echo OldWorkflowID: "${OldWorkflowID}"
-              echo STACKS: "${STACKS}" 
+              export OldWorkflowID=$(aws cloudformation list-exports \
+                --query "Exports[?Name==\`WorkflowID\`].Value" \
+                --no-paginate --output text)
+                
+                export STACKS=($(aws cloudformation list-stacks \
+                --query "StackSummaries[*].StackName" \
+                --stack-status-filter \
+                --no-paginate --output text))
+                
+                echo OldWorkflowID: "${OldWorkflowID}"
+                echo STACKS: "${STACKS}" 
 
-              echo Delete old stacks/resources
-              
-              if [[ "${STACKS[@]}" =~ "${OldWorkflowId}" ]]
-              then              
-                aws s3 rm s3://udapeople-${OldWorkflowId} --recursive             
-                aws cloudformation delete-stack --stack-name "n-udapeople-backend-${OldWorkflowID}"             
-                aws cloudformation delete-stack --stack-name "n-udapeople-frontend-${OldWorkflowID}"
-              fi    
+                echo Delete old stacks/resources
+                
+                if [[ "${STACKS[@]}" =~ "${OldWorkflowId}" ]]
+                then              
+                  aws s3 rm s3://udapeople-${OldWorkflowId} --recursive             
+                  aws cloudformation delete-stack --stack-name "n-udapeople-backend-${OldWorkflowID}"             
+                  aws cloudformation delete-stack --stack-name "n-udapeople-frontend-${OldWorkflowID}"
+                fi    
 
 workflows:
   default:
