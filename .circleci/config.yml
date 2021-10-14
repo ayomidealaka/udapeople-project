@@ -430,7 +430,7 @@ jobs:
             
             export STACKS=($(aws cloudformation list-stacks \
             --query "StackSummaries[*].StackName" \
-            --stack-status-filter CREATE_COMPLETE \
+            --stack-status-filter \
             --no-paginate --output text))
             
             echo OldWorkflowID: "${OldWorkflowID}"
