@@ -434,7 +434,7 @@ jobs:
             --no-paginate --output text)
             
             echo OldWorkflowID: "${OldWorkflowID}"
-            echo STACKS: "$STACKS" 
+            echo STACKS: "${STACKS}" 
             
             aws cloudformation deploy \
             --template-file /root/project/.circleci/files/cloudfront.yml \
