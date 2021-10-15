@@ -1,7 +1,7 @@
 - name: "Copy compiled backend app"
   become: true
   copy:
-    src: dist.tar.gz
+    src: artifact.tar.gz
     dest: /home/ubuntu
 
 - name: "Unzip backend files to correct directory"
