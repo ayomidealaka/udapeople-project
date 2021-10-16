@@ -1,0 +1,2 @@
+Github URL [URL01] = https://github.com/ayomidealaka/udapeople-project  
+Public URL of Frontend [URL02] = d3odhj000xlyp5.cloudfront.net
