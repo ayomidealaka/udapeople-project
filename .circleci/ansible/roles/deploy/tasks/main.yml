@@ -10,16 +10,19 @@
       cd /home/ubuntu
       tar -xzvf artifact.tar.gz -C .
       rm -rf artifact.tar.gz
-- name: "Copy compiled backend app"
-  become: true
-  copy:
-    src: package.json
-    dest: /home/ubuntu/dist
+
+# - name: "Copy compiled backend app"
+#   become: true
+#   copy:
+#     src: package.json
+#     dest: /home/ubuntu/dist
 
 - name: "Install dependencies for project"
   shell: |
     cd /home/ubuntu/dist
     npm install
+    npm run build
+
 - name: "install pm2"
   become: true
   npm:
