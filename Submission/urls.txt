@@ -1,2 +1,2 @@
 Github URL [URL01] = https://github.com/ayomidealaka/udapeople-project  
-Public URL of Frontend [URL02] = http://udapeople-aa7b76f.s3-website-us-east-1.amazonaws.com/#/employees
+Public URL of Frontend [URL02] = http://udapeople-7d2a23b.s3-website-us-east-1.amazonaws.com/#/employees
