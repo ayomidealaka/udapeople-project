@@ -344,14 +344,6 @@ jobs:
             npm run build
             aws s3 cp dist/ s3://udapeople-"${CIRCLE_WORKFLOW_ID}" --recursive
      
-      - run:
-          name: Deploy frontend objects
-          command: |
-            sudo npm install webpack-dev-server -g
-            cd frontend
-            sudo npm install
-            sudo npm run build
-            aws s3 cp dist/ s3://udapeople-"${CIRCLE_WORKFLOW_ID}" --recursive
       # Here's where you will add some code to rollback on failure
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID}"
