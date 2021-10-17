@@ -319,7 +319,7 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: travnels/circleci-nodejs-awscli:latest
+      - image: amazon/aws-cli
     steps:
       - checkout
       - run:
