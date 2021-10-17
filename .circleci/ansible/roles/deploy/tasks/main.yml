@@ -44,9 +44,9 @@
 #     pm2 start main.js --name udapeople-backend
 #   register: execute_node
 
-- name: print message
-  debug:
-    msg: "{{ execute_node.stdout_lines }}"
+# - name: print message
+#   debug:
+#     msg: "{{ execute_node.stdout_lines }}"
 
 - name: "Set pm2 start as service"
   become: yes
