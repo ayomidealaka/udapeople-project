@@ -251,19 +251,11 @@ jobs:
         - run:
             name: Install dependencies
             command: |
-              apk add --no-cache \
-                  python3 \
-                  py3-pip \
-              && pip3 install --upgrade pip \
-              && pip3 install \
-                  awscli \
-              && rm -rf /var/cache/apk/*
-              apk add --update ansible 
+              apk add --update ansible
+              pip install awscli
         - run:
             name: Configure server
             command: |
-              pwd &&
-              ls -la
               cat .circleci/ansible/inventory.txt
               ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
         # Here's where you will add some code to rollback on failure
@@ -291,12 +283,6 @@ jobs:
             echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
             echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
             echo NODE_ENV=development >> "backend/.env"
-      - run:
-          name: awscli install
-          command: |
-            sudo apt-get -y -qq update
-            sudo apt-get -qq install awscli
-            sudo apt-get -y -qq install python3
       - run:
           name: Run migrations
           command: |
@@ -365,8 +351,11 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible
+            apk add --update nodejs
+            apk add --update npm
             apk add --update tar gzip curl
             apk add --update openssh-client
+            pip install awscli
       
       - run:
           name: setup environment variables in production and zip backend files
@@ -387,7 +376,7 @@ jobs:
       - run:
           name: Deploy Backend
           command: |
-            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
       # Here's where you will add some code to rollback on failure 
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID}"
