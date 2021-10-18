@@ -7,8 +7,9 @@
 - name: "Copy compiled backend app"
   become: true
   copy:
-    src: ~/project/backend.tar.gz
+    src: ~/project/backend
     dest: /home/ubuntu
+    recursive: true
 
 - name: "Build artifact"
   become: yes
