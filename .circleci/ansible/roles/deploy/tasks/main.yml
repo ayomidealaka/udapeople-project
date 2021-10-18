@@ -9,7 +9,6 @@
   copy:
     src: ~/project/backend
     dest: /home/ubuntu
-    recursive: true
 
 - name: "Build artifact"
   become: yes
